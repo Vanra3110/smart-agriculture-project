@@ -1,17 +1,27 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+from schemas import CropInput
+from services.crop_service import predict_crop
 
-@app.get("/")
-def home():
-    return{
-        "status":"success",
-        "message": "AI Service home page is running",
-    }
+app = FastAPI(
+    title="Smart Agriculture AI",
+    description="AI service for smart agriculture applications",
+    version="1.0.0"
+)
 
 @app.get("/health")
 def health_check():
+    return{
+        "status":"success",
+        "message": "AI Service is working properly",
+    }
+
+@app.post("/predict")
+def predict(data: CropInput):
+
+    result = predict_crop(data)
+
     return {
         "status": "success",
-        "message": "AI service is working"
+        "data": result,
     }
