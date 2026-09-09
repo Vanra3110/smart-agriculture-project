@@ -1,8 +1,6 @@
 import { useState } from "react";
 import api from "../../services/api";
 
-import "../../App.css";
-
 import InputField from "../../components/InputField";
 import RecommendationResult from "../../components/Recommendation";
 
@@ -74,32 +72,34 @@ function Home() {
     };
 
     return (
-        <main className="app">
-            <section className="hero">
-                <p className="eyebrow">
+        <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
+            <section className="mx-auto max-w-4xl text-center">
+                <p className="text-sm font-bold tracking-widest text-green-600">
                     AI-POWERED AGRICULTURE
                 </p>
 
-                <h1>Smart Agriculture AI</h1>
+                <h1 className="mt-3 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+                    Smart Agriculture AI
+                </h1>
 
-                <p>
-                    Enter your soil and environmental
-                    conditions to get a crop recommendation.
+                <p className="mx-auto mt-4 w-full max-w-4xl text-lg leading-8 text-slate-600">
+                    Enter your soil and environmental conditions
+                    to get an AI-powered crop recommendation.
                 </p>
             </section>
 
-            <section className="form-card">
+            <section className="text-2xl font-bold text-slate-900">
                 <h2>Crop Recommendation</h2>
 
-                <p className="section-description">
+                <p className="mt-2 text-slate-500">
                     Enter the current conditions of your
                     agricultural field.
                 </p>
 
-                <div className="section">
-                    <h3>Soil Information</h3>
+                <div className="mt-8">
+                    <h3 className="text-lg font-semibold text-slate-900">Soil Information</h3>
 
-                    <div className="input-grid">
+                    <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                         <InputField
                             label="Nitrogen (N)"
                             name="N"
@@ -135,10 +135,10 @@ function Home() {
                     </div>
                 </div>
 
-                <div className="section">
-                    <h3>Environmental Conditions</h3>
+                <div className="mt-8">
+                    <h3 className="text-lg font-semibold text-slate-900">Environmental Conditions</h3>
 
-                    <div className="input-grid">
+                    <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                         <InputField
                             label="Temperature (°C)"
                             name="temperature"
@@ -169,7 +169,20 @@ function Home() {
                 </div>
 
                 <button
-                    className="recommend-button"
+                    className="
+                    mt-8
+                    w-full
+                    rounded-xl
+                    bg-green-600
+                    px-6 py-3.5
+                    font-semibold
+                    text-white
+                    shadow-sm
+                    transition
+                    hover:bg-green-700
+                    disabled:cursor-not-allowed
+                    disabled:opacity-60
+                    "
                     onClick={getRecommendation}
                     disabled={loading}
                 >
@@ -179,13 +192,13 @@ function Home() {
                 </button>
 
                 {error && (
-                    <p className="error">
+                    <p className="mt-4 rounded-xl bg-red-50 p-3 text-center text-sm text-red-600">
                         {error}
                     </p>
                 )}
             </section>
 
-            <RecommendationResult result={result} />
+            {result && <RecommendationResult result={result} />}
         </main>
     );
 }

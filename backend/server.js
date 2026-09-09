@@ -35,10 +35,28 @@ app.get("/api/ai-health", async (req, res) => {
     }
 });
 
-app.post("/api/crop/recommend", async (req, res)=>{
+app.post("/api/crop/predict", async (req, res)=>{
     try {
         const response = await axios.post(
             "http://localhost:8000/predict",
+            req.body
+        );
+
+        res.json(response.data)
+    } catch (error) {
+        console.error("AI Service Error:", error.message)
+
+        res.status(500).json({
+            status: "error",
+            message: "Unable to get crop recommendation"
+        })
+    }
+})
+
+app.post("/api/crop/recommend", async (req, res)=>{
+    try {
+        const response = await axios.post(
+            "http://localhost:8000/recommend",
             req.body
         );
 

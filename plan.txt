@@ -851,3 +851,67 @@ The most important milestone is:
 > **React form → Express → FastAPI → ML model → result displayed in React.**
 
 Once you can do that, you will understand the core architecture of the entire project. Then every additional feature becomes much easier.
+
+
+PHASE 1 — Core AI pipeline
+──────────────────────────
+✅ Dataset
+✅ Random Forest
+✅ Model evaluation
+✅ FastAPI
+✅ Gemini
+⚠️ Express endpoint → change /predict to /recommend
+⬅ YOU ARE HERE
+⬜ React displays Gemini explanation
+
+
+PHASE 2 — Improve UI
+─────────────────────
+⬜ Better recommendation card
+⬜ Confidence indicator
+⬜ Farming considerations section
+⬜ Loading state
+⬜ Error handling
+⬜ Input validation/ranges
+⬜ Responsive/mobile UI
+
+
+PHASE 3 — Make it feel like a real application
+────────────────────────────────────────────────
+⬜ Dashboard/home navigation
+⬜ About/project page
+⬜ Crop information
+⬜ Input guidance
+⬜ Better agricultural terminology
+⬜ Recommendation history (optional)
+
+
+PHASE 4 — Reliability
+──────────────────────
+⬜ Handle Gemini failures gracefully
+⬜ Handle FastAPI unavailable
+⬜ Handle invalid inputs
+⬜ Add API error messages
+⬜ Add basic backend validation
+⬜ Test complete pipeline
+
+
+PHASE 5 — Documentation
+────────────────────────
+⬜ README
+⬜ Architecture diagram
+⬜ ML methodology
+⬜ Dataset description
+⬜ Model evaluation
+⬜ API documentation
+⬜ Screenshots
+⬜ Project limitations
+
+
+PHASE 6 — Final polish
+───────────────────────
+⬜ Git cleanup
+⬜ Environment variable safety
+⬜ Remove unnecessary files
+⬜ Final testing
+⬜ Final GitHub commit
