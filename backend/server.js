@@ -35,7 +35,7 @@ app.get("/api/ai-health", async (req, res) => {
     }
 });
 
-app.post("/api/crop/predict", async (req, res)=>{
+app.post("/api/crop/predict", async (req, res) => {
     try {
         const response = await axios.post(
             "http://localhost:8000/predict",
@@ -53,23 +53,36 @@ app.post("/api/crop/predict", async (req, res)=>{
     }
 })
 
-app.post("/api/crop/recommend", async (req, res)=>{
+app.post("/api/crop/recommend", async (req, res) => {
     try {
         const response = await axios.post(
             "http://localhost:8000/recommend",
             req.body
         );
 
-        res.json(response.data)
-    } catch (error) {
-        console.error("AI Service Error:", error.message)
+        res.json(response.data);
 
-        res.status(500).json({
+    } catch (error) {
+        console.error(
+            "AI Service Error:",
+            error.response?.data || error.message
+        );
+
+        if (error.response) {
+            return res.status(error.response.status).json({
+                status: "error",
+                message:
+                    error.response.data?.detail ||
+                    "Invalid crop recommendation request"
+            });
+        }
+
+        res.status(503).json({
             status: "error",
-            message: "Unable to get crop recommendation"
-        })
+            message: "AI service is unavailable"
+        });
     }
-})
+});
 
 
 app.listen(PORT, () => {

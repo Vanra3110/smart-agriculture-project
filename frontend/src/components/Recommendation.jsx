@@ -21,6 +21,7 @@ function RecommendationResult({ result }) {
 
     return (
         <section className="mx-auto mt-8 w-full max-w-4xl">
+
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
 
                 <p className="text-sm font-semibold tracking-widest text-green-600">
@@ -35,6 +36,7 @@ function RecommendationResult({ result }) {
                 <div className="mt-8">
 
                     <div className="flex items-center justify-between">
+
                         <span className="text-sm font-medium text-slate-600">
                             Model Confidence
                         </span>
@@ -42,15 +44,18 @@ function RecommendationResult({ result }) {
                         <span className="font-bold text-slate-900">
                             {confidencePercentage.toFixed(2)}%
                         </span>
+
                     </div>
 
                     <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-slate-100">
+
                         <div
                             className="h-full rounded-full bg-green-500 transition-all duration-700"
                             style={{
                                 width: `${confidencePercentage}%`,
                             }}
                         />
+
                     </div>
 
                     <p className="mt-2 text-sm text-slate-500">
@@ -59,9 +64,10 @@ function RecommendationResult({ result }) {
                             {confidenceLevel}
                         </span>
                     </p>
+
                 </div>
 
-                {/* Gemini explanation */}
+                {/* AI Explanation */}
                 <div className="mt-8 border-t border-slate-100 pt-6">
 
                     <h3 className="text-xl font-semibold text-slate-900">
@@ -88,6 +94,7 @@ function RecommendationResult({ result }) {
                 </div>
 
             </div>
+
         </section>
     );
 }
