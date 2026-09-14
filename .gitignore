@@ -29,3 +29,6 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+
+plan.txt
+Additional feature or task to add f.txt
