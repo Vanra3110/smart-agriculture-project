@@ -98,6 +98,121 @@ function Home() {
 
             </section>
 
+
+            {/* How It Works */}
+            <section className="mx-auto mt-16 w-full max-w-5xl">
+
+                <div className="text-center">
+
+                    <p className="text-sm font-bold tracking-widest text-green-600">
+                        HOW IT WORKS
+                    </p>
+
+                    <h2 className="mt-3 text-3xl font-bold text-slate-900">
+                        From Field Data to Crop Recommendation
+                    </h2>
+
+                    <p className="mx-auto mt-3 max-w-2xl text-slate-500">
+                        Our application combines machine learning and generative
+                        AI to provide a simple crop recommendation.
+                    </p>
+
+                </div>
+
+                <div className="mt-10 grid gap-6 md:grid-cols-4">
+
+                    {/* Step 1 */}
+                    <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+
+                        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-2xl">
+                            🌱
+                        </div>
+
+                        <p className="mt-4 text-xs font-bold tracking-widest text-green-600">
+                            STEP 1
+                        </p>
+
+                        <h3 className="mt-2 text-lg font-semibold text-slate-900">
+                            Enter Field Data
+                        </h3>
+
+                        <p className="mt-2 text-sm leading-6 text-slate-500">
+                            Provide soil nutrients, pH, temperature, humidity,
+                            and rainfall information.
+                        </p>
+
+                    </div>
+
+                    {/* Step 2 */}
+                    <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+
+                        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 text-2xl">
+                            🤖
+                        </div>
+
+                        <p className="mt-4 text-xs font-bold tracking-widest text-blue-600">
+                            STEP 2
+                        </p>
+
+                        <h3 className="mt-2 text-lg font-semibold text-slate-900">
+                            ML Prediction
+                        </h3>
+
+                        <p className="mt-2 text-sm leading-6 text-slate-500">
+                            A Random Forest model analyzes the provided
+                            agricultural conditions.
+                        </p>
+
+                    </div>
+
+                    {/* Step 3 */}
+                    <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+
+                        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-purple-100 text-2xl">
+                            💡
+                        </div>
+
+                        <p className="mt-4 text-xs font-bold tracking-widest text-purple-600">
+                            STEP 3
+                        </p>
+
+                        <h3 className="mt-2 text-lg font-semibold text-slate-900">
+                            AI Explanation
+                        </h3>
+
+                        <p className="mt-2 text-sm leading-6 text-slate-500">
+                            Gemini generates a simple explanation of the
+                            recommendation and farming considerations.
+                        </p>
+
+                    </div>
+
+                    {/* Step 4 */}
+                    <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+
+                        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-yellow-100 text-2xl">
+                            🌾
+                        </div>
+
+                        <p className="mt-4 text-xs font-bold tracking-widest text-yellow-600">
+                            STEP 4
+                        </p>
+
+                        <h3 className="mt-2 text-lg font-semibold text-slate-900">
+                            Crop Recommendation
+                        </h3>
+
+                        <p className="mt-2 text-sm leading-6 text-slate-500">
+                            The application displays the recommended crop,
+                            model confidence, and AI explanation.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
             {/* Input Form */}
             <section className="mx-auto mt-10 w-full max-w-4xl rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
 
@@ -252,6 +367,7 @@ function Home() {
 
             {/* Recommendation */}
             <RecommendationResult result={result} />
+
 
         </main>
     );
