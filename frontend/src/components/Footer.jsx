@@ -1,7 +1,15 @@
+import { motion } from "motion/react";
+
 function Footer() {
     return (
-        <footer className="border-t border-slate-200 bg-white">
-            <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+        <motion.footer 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="border-t border-slate-200 bg-white"
+        >
+            <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
 
                 <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
 
@@ -34,7 +42,7 @@ function Footer() {
                 </div>
 
             </div>
-        </footer>
+        </motion.footer>
     );
 }
 

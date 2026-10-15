@@ -1,24 +1,40 @@
+import { motion } from "motion/react";
+
 function About() {
     return (
-        <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
+        <main className="min-h-screen bg-slate-50 px-4 pt-16 pb-10 sm:px-6 lg:px-8">
 
-            <section className="mx-auto max-w-4xl">
+            <motion.section 
+                initial="hidden"
+                animate="visible"
+                variants={{
+                    hidden: { opacity: 0 },
+                    visible: {
+                        opacity: 1,
+                        transition: { staggerChildren: 0.15 }
+                    }
+                }}
+                className="mx-auto max-w-4xl"
+            >
 
-                <p className="text-sm font-bold tracking-widest text-green-600">
+                <motion.p variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="text-sm font-bold tracking-widest text-green-600">
                     ABOUT THE PROJECT
-                </p>
+                </motion.p>
 
-                <h1 className="mt-3 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+                <motion.h1 variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="mt-3 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
                     Smart Agriculture AI
-                </h1>
+                </motion.h1>
 
-                <p className="mt-6 text-lg leading-8 text-slate-600">
+                <motion.p variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }} className="mt-6 text-lg leading-8 text-slate-600">
                     Smart Agriculture AI is a machine-learning based
                     application that recommends suitable crops based
                     on soil and environmental conditions.
-                </p>
+                </motion.p>
 
-                <div className="mt-10 grid gap-6 sm:grid-cols-2">
+                <motion.div 
+                    variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+                    className="mt-10 grid gap-6 sm:grid-cols-2"
+                >
 
                     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                         <h2 className="text-xl font-semibold text-slate-900">
@@ -44,9 +60,9 @@ function About() {
                         </p>
                     </div>
 
-                </div>
+                </motion.div>
 
-                <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
 
                     <h2 className="text-xl font-semibold text-slate-900">
                         ⚠️ Important
@@ -60,9 +76,9 @@ function About() {
                         other agricultural factors.
                     </p>
 
-                </div>
+                </motion.div>
 
-            </section>
+            </motion.section>
 
         </main>
     );

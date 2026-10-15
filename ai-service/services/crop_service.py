@@ -24,10 +24,15 @@ def predict_crop(data):
 
     confidence = probabilities.max()
 
+    prob_list = []
     for crop, probability in zip(model.classes_, probabilities):
-        print(f"{crop}: {probability * 100:.2f}%")
+        prob_list.append({
+            "crop": crop,
+            "probability": round(float(probability) * 100, 2)
+        })
 
     return {
         "crop": prediction,
-        "confidence": round(float(confidence),4),
+        "confidence": round(float(confidence), 4),
+        "probabilities": prob_list,
     }
