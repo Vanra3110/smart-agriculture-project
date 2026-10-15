@@ -34,22 +34,9 @@ htmlcov/
 uv-cache/
 
 # =========================
-# ML models & training data
+# Training data (keep trained models tracked)
 # =========================
-*.joblib
-*.pkl
-*.pth
-*.pt
-*.h5
-*.hdf5
-*.keras
-*.onnx
-*.pb
-*.ckpt
-*.safetensors
 Plant_Images/
-ai-service/models/*
-!ai-service/models/*.json
 ai-service/evaluation/
 *.ipynb
 .ipynb_checkpoints/

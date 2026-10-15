@@ -9,7 +9,6 @@ wheels/
 .venv/
 __pycache__/
 *.pyc
-*.joblib
 .env
 
 # Virtual environments
