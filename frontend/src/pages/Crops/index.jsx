@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
+import riceImg from "../../assets/crop_img/rice.jpg";
 
 export const crops = [
     {
@@ -7,7 +8,7 @@ export const crops = [
         category: "Cereal",
         description: "A water-intensive cereal crop commonly grown in warm and humid conditions.",
         conditions: "High rainfall, high humidity, warm temperature",
-        image: "src/assets/crop_img/rice.jpg",
+        image: riceImg,
         detailedDescription: "Rice is the seed of the grass species Oryza sativa (Asian rice) or, much less commonly, Oryza glaberrima (African rice). As a cereal grain, it is the most widely consumed staple food for a large part of the world's human population.",
         growingSeason: "Kharif (June to October) in India, requires flooded fields for best yield.",
         harvestTime: "Winter (November to December)"

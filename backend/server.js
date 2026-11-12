@@ -18,7 +18,7 @@ const AI_SERVICE_URL = (process.env.AI_SERVICE_URL || "http://localhost:8000").r
 const isProduction = process.env.NODE_ENV === "production";
 const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
     .split(",")
-    .map((origin) => origin.trim())
+    .map((origin) => origin.trim().replace(/\/$/, ""))
     .filter(Boolean);
 
 const aiClient = axios.create({
@@ -33,15 +33,17 @@ app.use(
         isProduction
             ? {
                   origin(origin, callback) {
-                      if (
-                          !origin ||
-                          allowedOrigins.includes("*") ||
-                          allowedOrigins.includes(origin)
-                      ) {
+                      if (!origin || allowedOrigins.includes("*")) {
                           return callback(null, true);
                       }
-                      return callback(new Error("Not allowed by CORS"));
+                      const normalized = origin.trim().replace(/\/$/, "");
+                      if (allowedOrigins.includes(normalized)) {
+                          return callback(null, true);
+                      }
+                      console.warn(`[CORS Blocked] Origin: ${origin}`);
+                      return callback(null, false);
                   },
+                  credentials: true,
               }
             : undefined
     )
