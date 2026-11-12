@@ -1,8 +1,6 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import axios from "axios";
-
-const API_BASE = "http://localhost:5000/api";
+import api from "../../services/api";
 
 const PRESET_SAMPLES = [
     {
@@ -129,19 +127,8 @@ export default function DiseaseDetection() {
         const formData = new FormData();
         formData.append("image", selectedImage);
 
-        // Include auth token if user is signed in
-        const token = localStorage.getItem("agri_token") || localStorage.getItem("token");
-        const headers = {
-            "Content-Type": "multipart/form-data",
-        };
-        if (token) {
-            headers.Authorization = `Bearer ${token}`;
-        }
-
         try {
-            const response = await axios.post(`${API_BASE}/disease/predict`, formData, {
-                headers,
-            });
+            const response = await api.post("/disease/predict", formData);
 
             if (response.data?.status === "success" || response.data?.data) {
                 setResult(response.data.data || response.data);

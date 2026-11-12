@@ -6,8 +6,9 @@ import torch.nn as nn
 from torchvision import transforms, models
 from PIL import Image
 
-MODEL_PATH = r"d:\Smart-agriculture-project\ai-service\models\plant_disease_resnet50.pth"
-CLASSES_JSON_PATH = r"d:\Smart-agriculture-project\ai-service\models\disease_classes.json"
+SERVICE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODEL_PATH = os.path.join(SERVICE_DIR, "models", "plant_disease_resnet50.pth")
+CLASSES_JSON_PATH = os.path.join(SERVICE_DIR, "models", "disease_classes.json")
 
 _model = None
 _disease_classes = None

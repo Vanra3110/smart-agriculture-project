@@ -10,13 +10,43 @@ const { optionalAuth } = require("./middleware/auth");
 const app = express();
 
 const PORT = process.env.PORT || 5000;
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || "http://localhost:8000";
+const HOST = process.env.HOST || "0.0.0.0";
+const AI_SERVICE_URL = (process.env.AI_SERVICE_URL || "http://localhost:8000").replace(
+    /\/$/,
+    ""
+);
+const isProduction = process.env.NODE_ENV === "production";
+const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
-// Connect to MongoDB Atlas (with local fallback)
+const aiClient = axios.create({
+    baseURL: AI_SERVICE_URL,
+    timeout: Number(process.env.AI_TIMEOUT_MS) || 120000,
+});
+
 connectDB();
 
-app.use(cors());
-app.use(express.json());
+app.use(
+    cors(
+        isProduction
+            ? {
+                  origin(origin, callback) {
+                      if (
+                          !origin ||
+                          allowedOrigins.includes("*") ||
+                          allowedOrigins.includes(origin)
+                      ) {
+                          return callback(null, true);
+                      }
+                      return callback(new Error("Not allowed by CORS"));
+                  },
+              }
+            : undefined
+    )
+);
+app.use(express.json({ limit: "2mb" }));
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -34,7 +64,7 @@ app.get("/api/health", (req, res) => {
 // AI Service Health check
 app.get("/api/ai-health", async (req, res) => {
     try {
-        const response = await axios.get(`${AI_SERVICE_URL}/health`);
+        const response = await aiClient.get("/health");
         res.json(response.data);
     } catch (error) {
         console.error("AI Health Error:", error.message);
@@ -48,10 +78,7 @@ app.get("/api/ai-health", async (req, res) => {
 // Predict endpoint
 app.post("/api/crop/predict", async (req, res) => {
     try {
-        const response = await axios.post(
-            `${AI_SERVICE_URL}/predict`,
-            req.body
-        );
+        const response = await aiClient.post("/predict", req.body);
         res.json(response.data);
     } catch (error) {
         console.error("AI Service Predict Error:", error.message);
@@ -65,10 +92,7 @@ app.post("/api/crop/predict", async (req, res) => {
 // Crop recommend endpoint (with optional user history saving if authenticated)
 app.post("/api/crop/recommend", optionalAuth, async (req, res) => {
     try {
-        const response = await axios.post(
-            `${AI_SERVICE_URL}/recommend`,
-            req.body
-        );
+        const response = await aiClient.post("/recommend", req.body);
 
         const resultData = response.data;
         const cropData = resultData?.data || resultData;
@@ -177,10 +201,7 @@ app.post("/api/disease/predict", optionalAuth, upload.single("image"), async (re
         });
         formData.append("file", blob, req.file.originalname || "leaf.jpg");
 
-        const response = await axios.post(
-            `${AI_SERVICE_URL}/predict/disease`,
-            formData
-        );
+        const response = await aiClient.post("/predict/disease", formData);
         const resultData = response.data;
         const diseaseData = resultData?.data || resultData;
 
@@ -232,7 +253,7 @@ app.post("/api/disease/predict", optionalAuth, upload.single("image"), async (re
 // Disease classes listing endpoint
 app.get("/api/disease/classes", async (req, res) => {
     try {
-        const response = await axios.get(`${AI_SERVICE_URL}/disease/classes`);
+        const response = await aiClient.get("/disease/classes");
         res.json(response.data);
     } catch (error) {
         res.status(503).json({
@@ -242,6 +263,6 @@ app.get("/api/disease/classes", async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+app.listen(PORT, HOST, () => {
+    console.log(`🚀 Server running on http://${HOST}:${PORT}`);
 });

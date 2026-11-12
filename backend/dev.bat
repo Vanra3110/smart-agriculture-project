@@ -1,0 +1,3 @@
+@echo off
+echo Starting the node backend Services...
+npm run dev

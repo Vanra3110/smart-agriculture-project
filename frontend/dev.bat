@@ -1,0 +1,3 @@
+@echo off
+echo Staring Frontend Services...
+npm run dev

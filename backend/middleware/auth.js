@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const { getJwtSecret } = require("../config/jwt");
 
 // Required Auth Middleware
 const protect = async (req, res, next) => {
@@ -20,10 +21,7 @@ const protect = async (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(
-            token,
-            process.env.JWT_SECRET || "default_jwt_secret_dev"
-        );
+        const decoded = jwt.verify(token, getJwtSecret());
         const user = await User.findById(decoded.id).select("-password");
 
         if (!user) {
@@ -57,10 +55,7 @@ const optionalAuth = async (req, res, next) => {
 
     if (token) {
         try {
-            const decoded = jwt.verify(
-                token,
-                process.env.JWT_SECRET || "default_jwt_secret_dev"
-            );
+            const decoded = jwt.verify(token, getJwtSecret());
             req.user = await User.findById(decoded.id).select("-password");
         } catch {
             // Token invalid or expired, continue as guest

@@ -1,6 +1,8 @@
 import os
-import json
+
+from dotenv import load_dotenv
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from schemas import CropInput
@@ -8,10 +10,29 @@ from services.crop_service import predict_crop
 from services.disease_service import predict_crop_disease, get_disease_classes
 from llm_service import generate_crop_explanation
 
+load_dotenv()
+
 app = FastAPI(
     title="Smart Agriculture AI",
     description="AI service for smart agriculture applications",
-    version="1.0.0"
+    version="1.0.0",
+)
+
+cors_origins = [
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ORIGIN",
+        "http://localhost:5173,http://localhost:5000",
+    ).split(",")
+    if origin.strip()
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.get("/health")
@@ -94,3 +115,13 @@ def list_disease_classes():
         "count": len(classes),
         "data": list(classes.values())
     }
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", "8000")),
+    )

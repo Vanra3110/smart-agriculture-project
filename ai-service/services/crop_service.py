@@ -1,9 +1,12 @@
+from pathlib import Path
+
 import joblib
 import pandas as pd
 
 from schemas import CropInput
 
-MODEL_PATH = "./models/crop_model.joblib"
+SERVICE_DIR = Path(__file__).resolve().parent.parent
+MODEL_PATH = SERVICE_DIR / "models" / "crop_model.joblib"
 
 model = joblib.load(MODEL_PATH)
 
