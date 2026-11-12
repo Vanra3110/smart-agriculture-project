@@ -1,10 +1,14 @@
 const mongoose = require("mongoose");
 const dns = require("dns");
 
-try {
-    dns.setServers(["8.8.8.8", "1.1.1.1"]);
-} catch (e) {
-    // Ignore if not supported in environment
+// In cloud environments (Render, AWS, Railway, Docker), overriding DNS servers
+// breaks the container's internal DNS resolver. Only override if explicitly requested in dev.
+if (process.env.NODE_ENV !== "production" && process.env.OVERRIDE_DNS === "true") {
+    try {
+        dns.setServers(["8.8.8.8", "1.1.1.1"]);
+    } catch (e) {
+        // Ignore if not supported in environment
+    }
 }
 
 const connectDB = async () => {
@@ -15,14 +19,14 @@ const connectDB = async () => {
 
     if (isProduction && !atlasUri) {
         console.error("❌ MONGODB_URI must be set in production");
-        process.exit(1);
+        return;
     }
 
     if (atlasUri) {
         try {
             console.log("🔄 Connecting to MongoDB...");
             const conn = await mongoose.connect(atlasUri, {
-                serverSelectionTimeoutMS: 8000,
+                serverSelectionTimeoutMS: 10000,
             });
             console.log(
                 `✅ Connected to MongoDB: ${conn.connection.host} / ${conn.connection.name}`
@@ -30,9 +34,8 @@ const connectDB = async () => {
             return conn;
         } catch (atlasError) {
             console.error(`❌ MongoDB connection failed: ${atlasError.message}`);
-            if (isProduction) {
-                process.exit(1);
-            }
+            // Do not immediately kill the process with process.exit(1) so the web server can stay up
+            // and retry, and respond to health check probes while DB reconnects.
         }
     }
 
