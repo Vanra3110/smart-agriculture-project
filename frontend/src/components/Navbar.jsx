@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { NavLink, Link, useNavigate } from "react-router-dom";
+import { NavLink, Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "../context/AuthContext";
 
@@ -11,6 +11,15 @@ function Navbar() {
     const pillRef = useRef(null);
     const { user, isAuthenticated, logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Reset scroll state and close open menus on route navigation
+    useEffect(() => {
+        setIsScrolled(false);
+        setScrolledMenuOpen(false);
+        setMenuOpen(false);
+        window.scrollTo(0, 0);
+    }, [location.pathname]);
 
     // Track scroll position to trigger burger button transformation
     useEffect(() => {
@@ -82,8 +91,10 @@ function Navbar() {
         }
     };
 
-    const showPill = !isScrolled || scrolledMenuOpen;
-    const showBurger = isScrolled && !scrolledMenuOpen;
+    const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
+
+    const showPill = (!isScrolled || scrolledMenuOpen) && !isAuthPage;
+    const showBurger = isScrolled && !scrolledMenuOpen && !isAuthPage;
 
     return (
         <header className="sticky top-0 z-50 w-full pointer-events-none">
