@@ -67,12 +67,17 @@ app.get("/api/health", (req, res) => {
 app.get("/api/ai-health", async (req, res) => {
     try {
         const response = await aiClient.get("/health");
-        res.json(response.data);
+        res.json({
+            ...response.data,
+            connectedTo: `${AI_SERVICE_URL}/health`,
+        });
     } catch (error) {
         console.error("AI Health Error:", error.message);
-        res.status(500).json({
+        res.status(502).json({
             status: "error",
             message: "AI service is unavailable",
+            detail: error.message,
+            targetUrl: `${AI_SERVICE_URL}/health`,
         });
     }
 });

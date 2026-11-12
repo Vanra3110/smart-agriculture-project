@@ -1,10 +1,14 @@
 import os
 import io
 import json
+import gc
 import torch
 import torch.nn as nn
 from torchvision import transforms, models
 from PIL import Image
+
+# Restrict PyTorch to 1 CPU thread to minimize memory allocation on cloud free tiers (512MB RAM)
+torch.set_num_threads(1)
 
 SERVICE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_PATH = os.path.join(SERVICE_DIR, "models", "plant_disease_resnet50.pth")
@@ -44,15 +48,27 @@ def get_disease_model():
 
     if os.path.exists(MODEL_PATH):
         try:
-            state_dict = torch.load(MODEL_PATH, map_location=torch.device("cpu"))
+            # Use mmap=True and weights_only=True to drastically reduce memory usage during loading
+            state_dict = torch.load(MODEL_PATH, map_location="cpu", mmap=True, weights_only=True)
             model.load_state_dict(state_dict)
+            del state_dict
+            gc.collect()
             model.eval()
             _model = model
-            print(f"[Disease Service] Successfully loaded ResNet50 weights from {MODEL_PATH}")
+            print(f"[Disease Service] Successfully loaded ResNet50 weights with mmap from {MODEL_PATH}")
         except Exception as e:
-            print(f"[Disease Service] Error loading weights: {e}")
-            _model = model
-            _model.eval()
+            print(f"[Disease Service] Failed to load with mmap: {e}. Trying standard load...")
+            try:
+                state_dict = torch.load(MODEL_PATH, map_location="cpu")
+                model.load_state_dict(state_dict)
+                del state_dict
+                gc.collect()
+                model.eval()
+                _model = model
+            except Exception as e2:
+                print(f"[Disease Service] Error loading weights: {e2}")
+                _model = model
+                _model.eval()
     else:
         print(f"[Disease Service] Model weights not found yet at {MODEL_PATH}. Using initialized backbone.")
         model.eval()
@@ -75,20 +91,20 @@ def predict_crop_disease(image_bytes: bytes):
     classes = get_disease_classes()
     model = get_disease_model()
 
-    # If the model file exists now but wasn't loaded with weights, reload it
-    if os.path.exists(MODEL_PATH) and _model is not None:
-        pass
-
     try:
         image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        # Downscale large mobile camera photos before transform to protect memory
+        image.thumbnail((512, 512), Image.Resampling.BILINEAR)
     except Exception as e:
         raise ValueError(f"Invalid or corrupted image format: {str(e)}")
 
     # Preprocess
     tensor_img = inference_transform(image).unsqueeze(0)
+    del image
+    gc.collect()
 
-    # Model inference
-    with torch.no_grad():
+    # Model inference using memory-efficient inference_mode
+    with torch.inference_mode():
         outputs = model(tensor_img)
         probs = torch.softmax(outputs, dim=1)[0]
         top_k = min(5, len(probs))

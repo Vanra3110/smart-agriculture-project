@@ -46,9 +46,11 @@ def generate_crop_explanation(
     Clearly mention that this is an AI-based recommendation.
     """
 
+    model_name = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+
     try:
         response = client.chat.completions.create(
-            model="gemini-3.5-flash-lite",
+            model=model_name,
             messages=[
                 {
                     "role": "system", 

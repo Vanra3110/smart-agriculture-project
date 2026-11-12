@@ -10,12 +10,29 @@ from services.crop_service import predict_crop
 from services.disease_service import predict_crop_disease, get_disease_classes
 from llm_service import generate_crop_explanation
 
+from contextlib import asynccontextmanager
+
 load_dotenv()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Pre-warm model on startup with memory garbage collection
+    try:
+        from services.disease_service import get_disease_model
+        print("[Startup] Initializing ResNet50 model...")
+        get_disease_model()
+        import gc
+        gc.collect()
+        print("[Startup] ResNet50 model ready.")
+    except Exception as e:
+        print(f"[Startup] ResNet50 pre-warm notice: {e}")
+    yield
 
 app = FastAPI(
     title="Smart Agriculture AI",
     description="AI service for smart agriculture applications",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 cors_raw = os.getenv(
@@ -37,6 +54,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/")
+def root():
+    return {
+        "status": "success",
+        "message": "Smart Agriculture AI Service is running",
+    }
 
 @app.get("/health")
 def health_check():
