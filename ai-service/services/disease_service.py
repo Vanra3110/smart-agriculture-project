@@ -11,11 +11,14 @@ from PIL import Image
 torch.set_num_threads(1)
 
 SERVICE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODEL_PATH = os.path.join(SERVICE_DIR, "models", "plant_disease_resnet50.pth")
+BF16_MODEL_PATH = os.path.join(SERVICE_DIR, "models", "plant_disease_resnet50_bf16.pth")
+FP32_MODEL_PATH = os.path.join(SERVICE_DIR, "models", "plant_disease_resnet50.pth")
+MODEL_PATH = BF16_MODEL_PATH if os.path.exists(BF16_MODEL_PATH) else FP32_MODEL_PATH
 CLASSES_JSON_PATH = os.path.join(SERVICE_DIR, "models", "disease_classes.json")
 
 _model = None
 _disease_classes = None
+_use_bfloat16 = False
 
 def get_disease_classes():
     global _disease_classes
@@ -28,7 +31,7 @@ def get_disease_classes():
     return _disease_classes
 
 def get_disease_model():
-    global _model
+    global _model, _use_bfloat16
     if _model is not None:
         return _model
 
@@ -46,31 +49,39 @@ def get_disease_model():
         nn.Linear(512, num_classes)
     )
 
-    if os.path.exists(MODEL_PATH):
+    # Prefer bfloat16 to halve memory footprint from 100MB to 49MB (critical for 512MB RAM cloud tiers)
+    if os.path.exists(BF16_MODEL_PATH):
         try:
-            # Use mmap=True and weights_only=True to drastically reduce memory usage during loading
-            state_dict = torch.load(MODEL_PATH, map_location="cpu", mmap=True, weights_only=True)
+            print(f"[Disease Service] Loading optimized bfloat16 ResNet50 from {BF16_MODEL_PATH}...")
+            model = model.to(torch.bfloat16)
+            state_dict = torch.load(BF16_MODEL_PATH, map_location="cpu", weights_only=True)
             model.load_state_dict(state_dict)
             del state_dict
             gc.collect()
             model.eval()
             _model = model
-            print(f"[Disease Service] Successfully loaded ResNet50 weights with mmap from {MODEL_PATH}")
+            _use_bfloat16 = True
+            print("[Disease Service] Successfully loaded bfloat16 ResNet50 (RAM footprint halved).")
+            return _model
         except Exception as e:
-            print(f"[Disease Service] Failed to load with mmap: {e}. Trying standard load...")
-            try:
-                state_dict = torch.load(MODEL_PATH, map_location="cpu")
-                model.load_state_dict(state_dict)
-                del state_dict
-                gc.collect()
-                model.eval()
-                _model = model
-            except Exception as e2:
-                print(f"[Disease Service] Error loading weights: {e2}")
-                _model = model
-                _model.eval()
+            print(f"[Disease Service] Failed to load bfloat16: {e}. Falling back to standard float32...")
+
+    if os.path.exists(FP32_MODEL_PATH):
+        try:
+            state_dict = torch.load(FP32_MODEL_PATH, map_location="cpu", mmap=True, weights_only=True)
+            model.load_state_dict(state_dict)
+            del state_dict
+            gc.collect()
+            model.eval()
+            _model = model
+            _use_bfloat16 = False
+            print(f"[Disease Service] Successfully loaded float32 ResNet50 from {FP32_MODEL_PATH}")
+        except Exception as e:
+            print(f"[Disease Service] Error loading float32 weights: {e}")
+            _model = model
+            _model.eval()
     else:
-        print(f"[Disease Service] Model weights not found yet at {MODEL_PATH}. Using initialized backbone.")
+        print(f"[Disease Service] Model weights not found yet at {MODEL_PATH}.")
         model.eval()
         _model = model
 
@@ -100,15 +111,22 @@ def predict_crop_disease(image_bytes: bytes):
 
     # Preprocess
     tensor_img = inference_transform(image).unsqueeze(0)
+    if _use_bfloat16:
+        tensor_img = tensor_img.to(torch.bfloat16)
+
     del image
     gc.collect()
 
     # Model inference using memory-efficient inference_mode
     with torch.inference_mode():
         outputs = model(tensor_img)
-        probs = torch.softmax(outputs, dim=1)[0]
+        # Convert output logits to float32 before softmax for precision
+        probs = torch.softmax(outputs.float(), dim=1)[0]
         top_k = min(5, len(probs))
         top_probs, top_indices = torch.topk(probs, k=top_k)
+
+    del tensor_img, outputs
+    gc.collect()
 
     top_probs = top_probs.cpu().numpy()
     top_indices = top_indices.cpu().numpy()
