@@ -46,23 +46,36 @@ def generate_crop_explanation(
     Clearly mention that this is an AI-based recommendation.
     """
 
-    model_name = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+    models_to_try = [
+        os.getenv("GEMINI_MODEL", "gemini-3.8-flash"),
+        "gemini-3.8-flash",
+        "gemini-2.0-flash",
+        "gemini-1.5-flash",
+    ]
+    # Deduplicate while preserving order
+    models_to_try = list(dict.fromkeys(models_to_try))
 
-    try:
-        response = client.chat.completions.create(
-            model=model_name,
-            messages=[
-                {
-                    "role": "system", 
-                    "content": "You are a helpful agricultural assistant."},
-                {
-                    "role": "user", 
-                    "content": prompt
-                },
-            ],
-        )
+    last_error = None
+    for model_name in models_to_try:
+        try:
+            response = client.chat.completions.create(
+                model=model_name,
+                messages=[
+                    {
+                        "role": "system", 
+                        "content": "You are a helpful agricultural assistant."
+                    },
+                    {
+                        "role": "user", 
+                        "content": prompt
+                    },
+                ],
+            )
 
-        return response.choices[0].message.content or "Unable to generate explanation."
-    
-    except Exception as e:
-        return f"Error generating explanation: {str(e)}"
+            if response.choices and response.choices[0].message.content:
+                return response.choices[0].message.content
+        except Exception as e:
+            last_error = e
+            continue
+
+    return f"Error generating explanation: {str(last_error)}"
